@@ -30,9 +30,6 @@ public class LabRequestController {
 
     Logger log = LoggerFactory.getLogger(LabRequestController.class);
 
-
-
-
     @Autowired
     private TestRequestUpdateService testRequestUpdateService;
 
@@ -42,23 +39,13 @@ public class LabRequestController {
     @Autowired
     private TestRequestFlowService testRequestFlowService;
 
-
-
     @Autowired
     private UserLoggedInService userLoggedInService;
-
-
 
     @GetMapping("/to-be-tested")
     @PreAuthorize("hasAnyRole('TESTER')")
     public List<TestRequest> getForTests()  {
-
-
        return testRequestQueryService.findBy(RequestStatus.INITIATED);
-
-
-
-
     }
 
     @GetMapping
@@ -71,22 +58,15 @@ public class LabRequestController {
         //Implement this method to return the list of test requests assigned to current tester(make use of the above created User object)
         //Make use of the findByTester() method from testRequestQueryService class
         // For reference check the method getForTests() method from LabRequestController class
-
-        throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED,"Not implemented"); // replace this line with your code
-
-
+        User loggedInUser = userLoggedInService.getLoggedInUser();
+        return testRequestQueryService.findByTester(loggedInUser);
     }
-
 
     @PreAuthorize("hasAnyRole('TESTER')")
     @PutMapping("/assign/{id}")
     public TestRequest assignForLabTest(@PathVariable Long id) {
-
-
-
-        User tester =userLoggedInService.getLoggedInUser();
-
-      return   testRequestUpdateService.assignForLabTest(id,tester);
+        User tester = userLoggedInService.getLoggedInUser();
+        return  testRequestUpdateService.assignForLabTest(id,tester);
     }
 
     @PreAuthorize("hasAnyRole('TESTER')")
@@ -94,20 +74,12 @@ public class LabRequestController {
     public TestRequest updateLabTest(@PathVariable Long id,@RequestBody CreateLabResult createLabResult) {
 
         try {
-
             User tester=userLoggedInService.getLoggedInUser();
             return testRequestUpdateService.updateLabTest(id,createLabResult,tester);
-
-
         } catch (ConstraintViolationException e) {
             throw asConstraintViolation(e);
         }catch (AppException e) {
             throw asBadRequest(e.getMessage());
         }
     }
-
-
-
-
-
 }
